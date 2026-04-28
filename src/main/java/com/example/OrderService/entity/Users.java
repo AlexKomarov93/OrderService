@@ -1,39 +1,55 @@
 package com.example.OrderService.entity;
 
+import com.example.OrderService.entity.enums.Role;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Data
 @Builder
-@Table(name = "users")
-@AllArgsConstructor
 @NoArgsConstructor
-public class Users {
+@AllArgsConstructor
+@Table(name = "users")
+public class Users implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
-    @NotBlank(message = "Имя пользователя не может быть пустым или содержать одни пробелы")
-    @Column(name = "username", length = 40, nullable = false,unique = true)
+    @Column(name = "username", unique = true, nullable = false)
     private String username;
 
-    @NotBlank(message = "Пароль не может быть пустым или содержать одни пробелы")
-    @Column(name = "password", length = 60, nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @NotBlank(message = "Почтовый адрес не может быть пустым или содержать одни пробелы")
-    @Email
-    @Column(name = "email", length = 60, nullable = false,unique = true)
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired()   { return true; }
+
+    @Override
+    public boolean isAccountNonLocked()    { return true; }
+
+    @Override
+    public boolean isCredentialsNonExpired() { return true; }
+
+    @Override
+    public boolean isEnabled()              { return true; }
 }
