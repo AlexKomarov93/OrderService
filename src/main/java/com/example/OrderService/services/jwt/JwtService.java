@@ -1,4 +1,4 @@
-package com.example.OrderService.services;
+package com.example.OrderService.services.jwt;
 
 import com.example.OrderService.entity.Users;
 import io.jsonwebtoken.Claims;

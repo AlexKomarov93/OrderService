@@ -1,4 +1,4 @@
-package com.example.OrderService.dto;
+package com.example.OrderService.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
