@@ -1,14 +1,20 @@
 package com.example.OrderService.services;
 
-import com.example.OrderService.dto.TokenResponseDto;
-import com.example.OrderService.dto.UsersResponseDto;
+import com.example.OrderService.entity.Users;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService {
 
-    UsersResponseDto registerUser(String username, String password, String email);
+    Users save(Users user);
 
-    TokenResponseDto login(String username, String password);
+    Users create(Users user);
 
-    TokenResponseDto refreshToken(String oldRefreshToken);
+    Users getByUsername(String username);
 
+    UserDetailsService userDetailsService();
+
+    Users getCurrentUser();
+
+    @Deprecated
+    void getAdmin();
 }
