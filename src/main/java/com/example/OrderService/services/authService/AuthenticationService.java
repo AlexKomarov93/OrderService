@@ -68,9 +68,8 @@ public class AuthenticationService {
                 .loadUserByUsername(request.getUsername());
 
         var jwt = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user); // ИСПРАВЛЕНО: добавили генерацию
+        var refreshToken = jwtService.generateRefreshToken(user);
 
-        // ИСПРАВЛЕНО: передаем два параметра вместо одного
         return new JwtAuthenticationResponse(jwt, refreshToken);
     }
 }
