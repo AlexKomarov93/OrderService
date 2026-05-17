@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option java_package = "com.example.OrderService.grpc";
+option java_multiple_files = true;
+
+service InventoryService {
+  rpc checkAvailability  (ProductsRequest) returns (stream ProductsResponse) {}
+}
+
+message ProductsRequest {
+    uint64 id = 1;
+    string name = 2;
+}
+
+message ProductsResponse {
+     uint64 id = 1;
+     string name = 2;
+     int32 quantity = 3;
+     string price = 4;
+     string sale = 5;
+}
