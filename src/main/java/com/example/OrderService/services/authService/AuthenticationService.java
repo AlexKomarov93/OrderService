@@ -1,5 +1,6 @@
 package com.example.OrderService.services.authService;
 
+import com.example.OrderService.dto.request.TokenRefreshRequest;
 import com.example.OrderService.dto.response.JwtAuthenticationResponse;
 import com.example.OrderService.dto.request.SignInRequest;
 import com.example.OrderService.dto.request.SignUpRequest;
@@ -33,7 +34,28 @@ public class AuthenticationService {
         userService.create(user);
 
         var jwt = jwtService.generateToken(user);
-        return new JwtAuthenticationResponse(jwt);
+        var refreshToken = jwtService.generateRefreshToken(user);
+
+        // ИСПРАВЛЕНО: передаем два параметра вместо одного
+        return new JwtAuthenticationResponse(jwt, refreshToken);
+    }
+
+    public JwtAuthenticationResponse refreshToken(TokenRefreshRequest request) {
+        String refreshToken = request.getRefreshToken();
+        String username = jwtService.extractUserName(refreshToken);
+
+        var user = userService
+                .userDetailsService()
+                .loadUserByUsername(username);
+
+        if (jwtService.isTokenValid(refreshToken, user)) {
+            var newAccessToken = jwtService.generateToken(user);
+            var newRefreshToken = jwtService.generateRefreshToken(user);
+
+            return new JwtAuthenticationResponse(newAccessToken, newRefreshToken);
+        }
+
+        throw new RuntimeException("Refresh token is not valid!");
     }
 
     public JwtAuthenticationResponse signIn(SignInRequest request) {
@@ -47,6 +69,10 @@ public class AuthenticationService {
                 .loadUserByUsername(request.getUsername());
 
         var jwt = jwtService.generateToken(user);
-        return new JwtAuthenticationResponse(jwt);
+        var refreshToken = jwtService.generateRefreshToken(user); // ИСПРАВЛЕНО: добавили генерацию
+
+        // ИСПРАВЛЕНО: передаем два параметра вместо одного
+        return new JwtAuthenticationResponse(jwt, refreshToken);
     }
 }
+
