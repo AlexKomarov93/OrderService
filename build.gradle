@@ -28,6 +28,7 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.1'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.1'
 	implementation 'org.springframework.grpc:spring-grpc-spring-boot-starter:0.8.0'
+	implementation 'org.springframework.kafka:spring-kafka'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.1'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
