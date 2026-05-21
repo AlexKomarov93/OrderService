@@ -16,44 +16,25 @@ public class OrderProcessingService {
 
     private final OrderEventProducer orderEventProducer;
     private final InventoryClient inventoryClient;
+    private final OrderProcessingValidator validator;
+    private final OrderEventMapper orderEventMapper;
 
     public void createOrder(Long productId, Integer quantity, Long userId) {
-        checkFieldsAreNotNull(productId, quantity, userId);
+        validator.checkFieldsAreNotNull(productId, quantity, userId);
 
         var responses = inventoryClient.checkProductAvailability(productId, "");
         ProductsResponse product = responses.stream()
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Товар не найден на складе"));
 
-        checkQuantity(quantity, product);
+        validator.checkQuantity(quantity, product);
 
         Long orderId = generateOrderId();
         BigDecimal totalPrice = calculateTotalPrice(product, quantity);
 
-        OrderEvent orderEvent = OrderEvent.builder()
-                .orderId(orderId)
-                .productId(productId)
-                .productName(product.getName())
-                .quantity(quantity)
-                .price(new BigDecimal(product.getPrice()))
-                .sale(new BigDecimal(product.getSale()))
-                .totalPrice(totalPrice)
-                .userId(userId)
-                .build();
+        OrderEvent orderEvent = orderEventMapper.toEvent(product, orderId, productId, quantity, userId, totalPrice);
 
         orderEventProducer.sendOrder(orderEvent);
-    }
-
-    private void checkFieldsAreNotNull(Long productId, Integer quantity, Long userId) {
-        if (productId == null || quantity == null || userId == null) {
-            throw new IllegalArgumentException("Параметры заказа не могут быть null");
-        }
-    }
-
-    private void checkQuantity(Integer quantity, ProductsResponse product) {
-        if (quantity > product.getQuantity()) {
-            throw new IllegalArgumentException("Товара на складе недостаточно");
-        }
     }
 
     private BigDecimal calculateTotalPrice(ProductsResponse product, Integer quantity) {
@@ -67,3 +48,4 @@ public class OrderProcessingService {
         return Math.abs(UUID.randomUUID().getMostSignificantBits());
     }
 }
+
