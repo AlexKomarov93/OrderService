@@ -1,5 +1,6 @@
-package com.example.OrderService.config;
+package com.example.OrderService.config.security;
 
+import com.example.OrderService.config.JwtAuthenticationFilter;
 import com.example.OrderService.services.userService.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

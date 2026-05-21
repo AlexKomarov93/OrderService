@@ -1,5 +1,6 @@
 package com.example.OrderService.services.userService;
 
+import com.example.OrderService.config.security.SecurityUser;
 import com.example.OrderService.entity.Users;
 import com.example.OrderService.repos.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetailsService userDetailsService() {
-        return this::getByUsername;
+        return username -> new SecurityUser(getByUsername(username));
     }
 
     @Override
@@ -47,3 +48,4 @@ public class UserServiceImpl implements UserService {
         return getByUsername(username);
     }
 }
+
