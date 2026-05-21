@@ -1,6 +1,6 @@
 package com.example.OrderService.services.jwt;
 
-import com.example.OrderService.entity.Users;
+import com.example.OrderService.config.security.SecurityUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -22,16 +22,26 @@ public class JwtService {
     @Value("${token.signing.key}")
     private String jwtSigningKey;
 
+    @Value("${token.access.expiration}")
+    private long accessTokenExpiration;
+
+    @Value("${token.refresh.expiration}")
+    private long refreshTokenExpiration;
+
+    private static final String CLAIM_ID_KEY = "id";
+    private static final String CLAIM_EMAIL_KEY = "email";
+    private static final String CLAIM_ROLE_KEY = "role";
+
     public String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        if (userDetails instanceof Users customUserDetails) {
-            claims.put("id", customUserDetails.getId());
-            claims.put("email", customUserDetails.getEmail());
-            claims.put("role", customUserDetails.getRole());
+        if (userDetails instanceof SecurityUser customUserDetails) {
+            claims.put(CLAIM_ID_KEY, customUserDetails.user().getId());
+            claims.put(CLAIM_EMAIL_KEY, customUserDetails.user().getEmail());
+            claims.put(CLAIM_ROLE_KEY, customUserDetails.user().getRole());
         }
         return generateToken(claims, userDetails);
     }
@@ -42,7 +52,7 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 100000L * 60 * 24 * 10))
+                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -62,7 +72,7 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 100000 * 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
